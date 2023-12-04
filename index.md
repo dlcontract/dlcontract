@@ -1,4 +1,4 @@
-# DLContract
+# DLContract : Design by Contract for Deep Learning APIs
 
 This webpage contains the reproducibility package, source code, benchmark, and results for the paper - **"Design by Contract for Deep Learning APIs"**, which appeared in ESEC/FSE’2023: The 31st ACM Joint European Software Engineering Conference and Symposium on the Foundations of Software Engineering at San Francisco, California.
 
