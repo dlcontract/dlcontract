@@ -84,20 +84,22 @@ python motivExampleCorrect.py
 
 To run the tool with more sample example Buggy and Correct programs with example outputs, please refer to the [installation file](https://github.com/shibbirtanvin/DLContract/blob/main/INSTALL.md) for detailed instructions. The scripts to execute all DL programs from collected benchmarks are provided here in the [scripts to execute all the codes in the collected benchmarks](https://github.com/shibbirtanvin/DLContract/tree/main/ReproducibilityPackage/scripts).
 
-## Writing Contracts Example
+## Writing Contracts 
+## Example 1:
 In our technique, we annotate the library APIs with @contract and @new_contract annotations to specify preconditions and postconditions. 
 Consider this simple example, we want to write a contract on the Keras training API, fit. Basically, to check whether the data has been within the required range before training. So, this is a precondition for Fit API. We use the formal parameter ‘x’ to write this contract using @new_contract annotation and defining the function data_normalization with parameter (x). Here, in the data_normalization function, library API designers compute the range of training data which is declared as ‘normalized_interval’ variable. Then, library API designers can specify an appropriate range of normalization interval, here we used >2 from prior research. If contract is violated then suggestion to fix the bug is raised as ContractException message.
 
 ```
- @new_contract
+  @new_contract
   def data_normalization(x):
       normalized_interval = np.max(x) - np.min(x)
       print(normalized_interval)
       if(normalized_interval>2.0):
           msg = "Data should be normalized before training, should not be within range " + \
-                     str(np.min(x)) + " and " + str(np.max(x)) + " ; So, after loading train and test data should be divided by value " + str(np.max(x))
+                     str(np.min(x)) + " and " + str(np.max(x)) + " ; So, after loading train and test data should be divided by value " + 
+                     str(np.max(x))
           raise ContractException(msg)
-@contract(x='data_normalization')
+  @contract(x='data_normalization')
   def fit(self,
           x=None,
           y=None,
@@ -109,7 +111,86 @@ After executing this code with our approach using DL Contract annotated Keras, w
 ContractViolated: Data should be normalized before training, train and test data should be divided by value 255.0.
 ```
 
+## Example 2:
+Let us see another example. Here, we want to write a contract on Compile API inside Keras library. We would like to specify with an ideal last layer activation function and loss function for multi class classification problem. Here, activation function is not in the parameters list of compile API but it has been in the Dense API which might have been called in the earlier stage of ML pipeline. To write such inter-API contract, we can annotate ‘contract_checkerfunc1’ using model object type Anded with ‘contract_checkerfunc2’ using loss parameter with string type. In this case, loss is a formal parameter in compile API.
+In the contract_checkerfunc1 function using @new_contract annotation, we compute the last_layer_output_class and activation_func from the model object . Then, we can check contract violation with an ideal activation function ‘softmax’ and ideal loss function in ‘contract_checkerfunc2’  for multiclass classification. 
+Here, the ‘contract_checkerfunc2’ has been specified ANDed with contract_checkerfunc1, So, ‘contract_checkerfunc2’ only executed after contract_checkerfunc1. In this case, Contract violation is shown if both preconditions of appropriate activation and loss function are violated for multiclass classification.
 
+```
+  @new_contract
+  def contract_checker1(model):
+        last_layer_output_class = int(str((model.layers[len(model.layers) - 1]).output_shape).split(',').pop(-1).strip(')'))
+        activation_func = str(model.layers[len(model.layers) - 1].__getattribute__('activation')).split()[1]
+        global msg1
+        msg1 =''
+        if (last_layer_output_class >=3):
+            if (activation_func not in 'softmax'):
+                #global msg1
+                msg1= 'For multiclass classification activation_func should be softmax'
+                #msg = msg1
+                print(msg1)
+                raise ContractException(msg1)
+  @new_contract
+  def contract_checker2(loss):
+          if (loss not in 'categorical_crossentropy'):
+              msg2 = 'loss_function should be categorical crossentropy'
+              raise ContractException(msg2)
+  @contract(self='model, contract_checker1')
+  @contract(loss='str, contract_checker2')
+  def compile(self,
+              optimizer='rmsprop',
+              loss=None,
+              metrics=None,
+              loss_weights=None,
+              sample_weight_mode=None,
+              weighted_metrics=None,
+              **kwargs):
+    """Configures the model for training...
+```
+After executing this code with our approach using DL Contract annotated Keras, we get the incorrect activation and loss contract violation message and how to solve this for multiclass classification problem.
+
+```
+ContractViolated: For multiclass classification activation_func should be softmax, loss should be categorical crossentropy.
+```
+
+## Example 3:
+Let us see another example how postcondition can be specified using our technique. 
+To prevent overfitting, a contract can be added to the output of Fit API in Keras using @contract and the postcondition can be ensured using the overfitting function specified with returns. 
+In this overfitting function inside the @new_contract annotation, the API designers can use the obtained history object to compute the training loss “diff_loss” and validation loss “diff_val_loss” for each corresponding epoch.
+Then, we can check if the difference between the validation loss of consecutive epochs tends to increase while the difference between training loss continues to decrease. 
+
+```
+  @new_contract
+  def overfitting(history):
+      h=history
+      last_layer_output_class = int(str((model.layers[len(model.layers) - 1]).output_shape).split(',').pop(-1).strip(')'))
+      activation_func = str(model.layers[len(model.layers) - 1].__getattribute__('activation')).split()[1]
+      loss_function = model.loss
+      i=0
+      while i <= len(h.epoch) - 2:
+          epochNo = i + 2
+          diff_loss = h.history['loss'][i + 1] - h.history['loss'][i]
+          diff_val_loss = h.history['val_loss'][i + 1] - h.history['val_loss'][i]
+          i += 1
+          if(diff_val_loss>0.0):
+              if(diff_loss<=0.0):
+                 msg = "  After Epoch: " + str(epochNo) + ", diff_val_loss = " + str('%.4f' % diff_val_loss) + " and diff_loss = " \
+                     + str('%.4f' % diff_loss) + " causes overfitting"
+                 raise ContractException(msg)
+  @contract(returns='overfitting')
+  def fit(self,
+          x=None,
+          y=None,
+          batch_size=None,...)
+```
+
+If the condition is not met then, a contract violation method is thrown when a buggy DL program uses this annotated Fit API.    
+There could be different reasons for overfitting.  After executing a buggy code due to overfitting, our approach using DL Contract annotated Keras, we can get this kind of contract violation message for overfitting problem.
+
+```
+ContractViolated: After Epoch: 11, diff_val_loss = 0.34 and diff_loss = -0.12 causes overfitting.
+
+```
 
 ### Cite the paper as
 ```
