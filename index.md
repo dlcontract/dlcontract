@@ -11,6 +11,8 @@ This webpage contains the reproducibility package, source code, benchmark, and r
 * Breno Dantas Cruz, Iowa State University (bdantasc@iastate.edu)
 * Hridesh Rajan, Iowa State University (hridesh@iastate.edu)
 
+<a href="https://dl.acm.org/doi/pdf/10.1145/3611643.3616247"> DLContract Paper at_ESEC/FSE2023 </a>
+
 **PDF** [DLContract Paper at_ESEC/FSE2023]([https://doi.org/10.5281/zenodo.8271853](https://dl.acm.org/doi/pdf/10.1145/3611643.3616247))
 
 **DOI:** 
