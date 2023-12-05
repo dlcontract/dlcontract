@@ -84,6 +84,33 @@ python motivExampleCorrect.py
 
 To run the tool with more sample example Buggy and Correct programs with example outputs, please refer to the [installation file](https://github.com/shibbirtanvin/DLContract/blob/main/INSTALL.md) for detailed instructions. The scripts to execute all DL programs from collected benchmarks are provided here in the [scripts to execute all the codes in the collected benchmarks](https://github.com/shibbirtanvin/DLContract/tree/main/ReproducibilityPackage/scripts).
 
+## Writing Contracts Example
+In our technique, we annotate the library APIs with @contract and @new_contract annotations to specify preconditions and postconditions. 
+Consider this simple example, we want to write a contract on the Keras training API, fit. Basically, to check whether the data has been within the required range before training. So, this is a precondition for Fit API. We use the formal parameter ‘x’ to write this contract using @new_contract annotation and defining the function data_normalization with parameter (x). Here, in the data_normalization function, library API designers compute the range of training data which is declared as ‘normalized_interval’ variable. Then, library API designers can specify an appropriate range of normalization interval, here we used >2 from prior research. If contract is violated then suggestion to fix the bug is raised as ContractException message.
+
+```
+ @new_contract
+  def data_normalization(x):
+      normalized_interval = np.max(x) - np.min(x)
+      print(normalized_interval)
+      if(normalized_interval>2.0):
+          msg = "Data should be normalized before training, should not be within range " + \
+                     str(np.min(x)) + " and " + str(np.max(x)) + " ; So, after loading train and test data should be divided by value " + str(np.max(x))
+          raise ContractException(msg)
+@contract(x='data_normalization')
+  def fit(self,
+          x=None,
+          y=None,
+          batch_size=None,...)
+```
+After executing this code with our approach using DL Contract annotated Keras, we get the data normalization contract violation message and the fix suggestions for that buggy program.
+
+```
+ContractViolated: Data should be normalized before training, train and test data should be divided by value 255.0.
+```
+
+
+
 ### Cite the paper as
 ```
 @inproceedings{ahmed23dlcontract,
