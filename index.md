@@ -15,7 +15,8 @@ This webpage contains the reproducibility package, source code, benchmark, and r
 
 **DOI:** 
 The paper is published in ACM Digital Library:
-[ACM DOI]([https://doi.org/10.5281/zenodo.8271853](https://dl.acm.org/doi/10.1145/3611643.3616247))
+<a href="https://dl.acm.org/doi/10.1145/3611643.3616247"> [ACM DOI] </a>
+
 The artifact is published in Zenodo:
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8271853.svg)](https://doi.org/10.5281/zenodo.8271853)
 
