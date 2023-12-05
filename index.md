@@ -11,9 +11,12 @@ This webpage contains the reproducibility package, source code, benchmark, and r
 * Breno Dantas Cruz, Iowa State University (bdantasc@iastate.edu)
 * Hridesh Rajan, Iowa State University (hridesh@iastate.edu)
 
-**PDF** [DLContract Paper at_ESEC/FSE2023]([[[https://github.com/shibbirtanvin/DLContract/blob/main/DLContractPaper_ESECFSE23.pdf]](https://dl.acm.org/doi/pdf/10.1145/3611643.3616247)](https://dl.acm.org/doi/10.1145/3611643.3616247))
+**PDF** [DLContract Paper at_ESEC/FSE2023]([https://doi.org/10.5281/zenodo.8271853](https://dl.acm.org/doi/pdf/10.1145/3611643.3616247))
 
-**DOI:** The artifact is published in Zenodo:
+**DOI:** 
+The paper is published in ACM Digital Library:
+[ACM DOI]([https://doi.org/10.5281/zenodo.8271853](https://dl.acm.org/doi/10.1145/3611643.3616247))
+The artifact is published in Zenodo:
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8271853.svg)](https://doi.org/10.5281/zenodo.8271853)
 
 
@@ -78,7 +81,7 @@ python motivExampleBug.py
 python motivExampleCorrect.py
 ```
 
-To run the tool with more sample example Buggy and Correct programs with example outputs, please refer to the [installation file](INSTALL.md) for detailed instructions. The scripts to execute all DL programs from collected benchmarks are provided here in the [scripts to execute all the codes in the collected benchmarks](ReproducibilityPackage/scripts).
+To run the tool with more sample example Buggy and Correct programs with example outputs, please refer to the [installation file](https://github.com/shibbirtanvin/DLContract/blob/main/INSTALL.md) for detailed instructions. The scripts to execute all DL programs from collected benchmarks are provided here in the [scripts to execute all the codes in the collected benchmarks](https://github.com/shibbirtanvin/DLContract/tree/main/ReproducibilityPackage/scripts).
 
 ### Cite the paper as
 ```
